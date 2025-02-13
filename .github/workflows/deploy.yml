@@ -1,0 +1,57 @@
+name: Deploy FastAPI App
+
+on:
+  push:
+    branches:
+      - main  # This triggers when changes are pushed to the main branch (usually after a PR merge)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # This specifies that the job will run on an Ubuntu machine
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4  # Checkout the latest code from the repository
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'  # Use Python version 3.12 (or change to your preferred version)
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m venv venv  # Create a virtual environment
+          source venv/bin/activate  # Activate the virtual environment
+          pip install --upgrade pip  # Upgrade pip
+          pip install -r requirements.txt  # Install the required dependencies
+
+      # Step 4: Deploy the application to your server (e.g., using SSH)
+      - name: Deploy to server
+        run: |
+          # Ensure private key is available
+          mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa  # Adds the private key to the runner
+          chmod 600 ~/.ssh/id_rsa  # Secures the key with the right permissions
+
+          # This example uses SSH to deploy the app, replace with your actual deployment process
+          ssh -o StrictHostKey=no ubuntu@100.25.117.233 << 'EOF'
+            cd /home/jackmarley254/fastapi-book-project  # Navigate to your app directory
+            git pull origin main  # Pull the latest code from GitHub
+            
+          # Create the virtual environment if it doesn't exist
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv  # Create a virtual environment if it doesn't exist
+            fi
+            source venv/bin/activate  # Activate the virtual environment
+            pip install -r requirements.txt  # Install any new dependencies
+            
+            # Kill any existing Uvicorn processes
+            pkill -f 'uvicorn'
+           
+            # Restart the app with Uvicorn or your chosen method
+            nohup uvicorn main:app --host 0.0.0.0 --port 8000 & 
+            sleep 10 && kill $(lsof -t -i:8000) # Let it run for 60 seconds, then shut it down
+          EOF
