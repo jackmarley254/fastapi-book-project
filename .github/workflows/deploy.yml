@@ -37,7 +37,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa  # Secures the key with the right permissions
 
           # This example uses SSH to deploy the app, replace with your actual deployment process
-          ssh -o StrictHostKeyChecking=no ubuntu@54.160.89.187 << 'EOF'
+          ssh -o StrictHostKeyChecking=no root@209.38.150.237 << 'EOF'
             cd /home/jackmarley254/fastapi-book-project  # Navigate to your app directory
             git pull origin main  # Pull the latest code from GitHub
             
