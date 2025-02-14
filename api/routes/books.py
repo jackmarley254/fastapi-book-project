@@ -75,7 +75,7 @@ async def get_book_by_id(book_id: int) -> Book:
         - 200 OK: The book details in JSON format.
         - 404 Not Found: If the book does not exist.
     """
-    book = db.books.get(book_id)
+    book = db.get_book(book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
