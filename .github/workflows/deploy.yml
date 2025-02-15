@@ -40,6 +40,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@209.38.150.237 << 'EOF'
             cd /home/jackmarley254/fastapi-book-project  # Navigate to your app directory
             git pull origin main  # Pull the latest code from GitHub
+            git reset --hard origin/main
             
           # Create the virtual environment if it doesn't exist
             if [ ! -d "venv" ]; then
